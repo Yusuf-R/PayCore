@@ -1,0 +1,68 @@
+# ---- Secrets ----
+.env
+.env.local
+.env.*.local
+**/.env
+**/.env.local
+
+# ---- Node ----
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ---- Build output ----
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+out/
+**/out/
+
+# ---- Prisma ----
+**/prisma/*.db
+**/prisma/*.db-journal
+
+# ---- Logs ----
+*.log
+logs/
+**/logs/
+
+# ---- OS files ----
+.DS_Store
+Thumbs.db
+
+# ---- IDE ----
+.idea/
+.vscode/
+.qodo/
+*.iml
+*.swp
+
+# ---- Coverage / cache ----
+coverage/
+**/coverage/
+.nyc_output/
+*.tsbuildinfo
+.cache/
+.turbo/
+
+# ---- Env backups ----
+*.env.backup
+
+# -- Agents ---
+.agents/
+.claude/
+.cursor/
+.devin/
+**/.agents/
+**/.claude/
+**/.cursor/
+**/.devin/
+.windsurf/
+skills-lock.json
+**/.windsurf/
+**/skills-lock.json
