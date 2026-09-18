@@ -1,0 +1,53 @@
+enum AuditActor {
+  USER
+  ADMIN
+  SYSTEM
+}
+
+enum AuditAction {
+  // User security events
+  USER_REGISTERED
+  USER_LOGGED_IN
+  USER_LOGIN_FAILED
+  USER_LOGGED_OUT
+  USER_PASSWORD_CHANGED
+  USER_PIN_SET
+  USER_PIN_CHANGED
+  USER_EMAIL_CHANGED
+  USER_REFRESH_TOKEN_REUSED // theft detected
+
+  // Admin actions
+  ADMIN_USER_SUSPENDED
+  ADMIN_USER_REACTIVATED
+  ADMIN_USER_CLOSED
+  ADMIN_USER_ROLE_CHANGED
+  ADMIN_TRANSACTION_REVERSED
+  ADMIN_WALLET_BALANCE_ADJUSTED
+  ADMIN_REFRESH_TOKENS_REVOKED
+  ADMIN_IMPERSONATED_USER
+
+  // System actions
+  SYSTEM_TRANSFER_COMPLETED
+  SYSTEM_RECONCILIATION_RAN
+}
+
+model AuditLog {
+  id           String      @id @default(cuid())
+  actorId      String?     @map("actor_id") // null when actorType = SYSTEM
+  actorType    AuditActor  @map("actor_type")
+  action       AuditAction
+  targetUserId String?     @map("target_user_id")
+  targetTxId   String?     @map("target_tx_id")
+  metadata     Json?
+  ipAddress    String?     @map("ip_address")
+  userAgent    String?     @map("user_agent")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  actor      User? @relation("UserActorLogs", fields: [actorId], references: [id])
+  targetUser User? @relation("UserTargetLogs", fields: [targetUserId], references: [id])
+
+  @@index([actorId, createdAt])
+  @@index([targetUserId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}

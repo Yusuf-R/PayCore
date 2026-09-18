@@ -1,0 +1,35 @@
+enum TransactionType {
+  TRANSFER
+  FUNDING
+  WITHDRAWAL
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REVERSED
+}
+
+model Transaction {
+  id             String            @id @default(cuid())
+  type           TransactionType
+  status         TransactionStatus @default(PENDING)
+  fromWalletId   String?           @map("from_wallet_id")
+  toWalletId     String?           @map("to_wallet_id")
+  amountFlat     BigInt            @map("amount_flat")
+  currency       String
+  idempotencyKey String?           @unique @map("idempotency_key")
+  description    String?
+  createdAt      DateTime          @default(now()) @map("created_at")
+  updatedAt      DateTime          @updatedAt @map("updated_at")
+  completedAt    DateTime?         @map("completed_at")
+
+  fromWallet Wallet? @relation("TransactionFromWallet", fields: [fromWalletId], references: [id])
+  toWallet   Wallet? @relation("TransactionToWallet", fields: [toWalletId], references: [id])
+
+  @@index([fromWalletId, createdAt])
+  @@index([toWalletId, createdAt])
+  @@index([status, createdAt])
+  @@map("transactions")
+}

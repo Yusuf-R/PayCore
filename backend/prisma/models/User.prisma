@@ -1,0 +1,52 @@
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
+enum KycStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model User {
+  id           String  @id @default(cuid())
+  email        String  @unique
+  phone        String? @unique
+  firstName    String? @map("first_name")
+  lastName     String? @map("last_name")
+  avatarUrl    String? @map("avatar_url")
+  passwordHash String  @map("password_hash")
+  pinHash      String? @map("pin_hash")
+
+  role UserRole @default(USER)
+
+  status    UserStatus @default(ACTIVE)
+  kycStatus KycStatus  @default(UNVERIFIED) @map("kyc_status")
+
+  emailVerifiedAt DateTime? @map("email_verified_at")
+  phoneVerifiedAt DateTime? @map("phone_verified_at")
+
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  failedPinAttempts   Int       @default(0) @map("failed_pin_attempts")
+  lockedUntil         DateTime? @map("locked_until")
+  lastLoginAt         DateTime? @map("last_login_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  actorLogs  AuditLog[] @relation("UserActorLogs")
+  targetLogs AuditLog[] @relation("UserTargetLogs")
+
+  wallet        Wallet?
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}

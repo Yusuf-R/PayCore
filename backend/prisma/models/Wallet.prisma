@@ -1,0 +1,14 @@
+model Wallet {
+  id          String   @id @default(cuid())
+  userId      String   @unique @map("user_id")
+  currency    String   @default("NGN")
+  balanceFlat BigInt   @default(0) @map("balance_flat")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sentTransactions     Transaction[] @relation("TransactionFromWallet")
+  receivedTransactions Transaction[] @relation("TransactionToWallet")
+
+  @@map("wallets")
+}
