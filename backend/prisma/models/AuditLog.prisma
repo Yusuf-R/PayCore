@@ -32,12 +32,12 @@ enum AuditAction {
 }
 
 model AuditLog {
-  id           String      @id @default(cuid())
-  actorId      String?     @map("actor_id") // null when actorType = SYSTEM
+  id           String      @id @default(uuid()) @db.Uuid
+  actorId      String?     @map("actor_id") @db.Uuid // null when actorType = SYSTEM
   actorType    AuditActor  @map("actor_type")
   action       AuditAction
-  targetUserId String?     @map("target_user_id")
-  targetTxId   String?     @map("target_tx_id")
+  targetUserId String?     @map("target_user_id") @db.Uuid
+  targetTxId   String?     @map("target_tx_id") @db.Uuid
   metadata     Json?
   ipAddress    String?     @map("ip_address")
   userAgent    String?     @map("user_agent")
@@ -46,6 +46,7 @@ model AuditLog {
   actor      User? @relation("UserActorLogs", fields: [actorId], references: [id])
   targetUser User? @relation("UserTargetLogs", fields: [targetUserId], references: [id])
 
+  // creating index
   @@index([actorId, createdAt])
   @@index([targetUserId, createdAt])
   @@index([action, createdAt])

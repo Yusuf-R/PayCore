@@ -1,10 +1,10 @@
 model RefreshToken {
-  id                String    @id @default(cuid())
-  userId            String    @map("user_id")
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
   tokenHash         String    @unique @map("token_hash")
   expiresAt         DateTime  @map("expires_at")
   revokedAt         DateTime? @map("revoked_at")
-  replacedByTokenId String?   @unique @map("replaced_by_token_id")
+  replacedByTokenId String?   @unique @map("replaced_by_token_id") @db.Uuid
   userAgent         String?   @map("user_agent")
   ipAddress         String?   @map("ip_address")
   createdAt         DateTime  @default(now()) @map("created_at")

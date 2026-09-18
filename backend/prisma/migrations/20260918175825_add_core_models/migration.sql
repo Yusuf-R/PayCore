@@ -21,12 +21,12 @@ CREATE TYPE "KycStatus" AS ENUM ('UNVERIFIED', 'PENDING', 'VERIFIED', 'REJECTED'
 
 -- CreateTable
 CREATE TABLE "audit_logs" (
-    "id" TEXT NOT NULL,
-    "actor_id" TEXT,
+    "id" UUID NOT NULL,
+    "actor_id" UUID,
     "actor_type" "AuditActor" NOT NULL,
     "action" "AuditAction" NOT NULL,
-    "target_user_id" TEXT,
-    "target_tx_id" TEXT,
+    "target_user_id" UUID,
+    "target_tx_id" UUID,
     "metadata" JSONB,
     "ip_address" TEXT,
     "user_agent" TEXT,
@@ -37,12 +37,12 @@ CREATE TABLE "audit_logs" (
 
 -- CreateTable
 CREATE TABLE "refresh_tokens" (
-    "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
     "token_hash" TEXT NOT NULL,
     "expires_at" TIMESTAMP(3) NOT NULL,
     "revoked_at" TIMESTAMP(3),
-    "replaced_by_token_id" TEXT,
+    "replaced_by_token_id" UUID,
     "user_agent" TEXT,
     "ip_address" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -52,11 +52,11 @@ CREATE TABLE "refresh_tokens" (
 
 -- CreateTable
 CREATE TABLE "transactions" (
-    "id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
     "type" "TransactionType" NOT NULL,
     "status" "TransactionStatus" NOT NULL DEFAULT 'PENDING',
-    "from_wallet_id" TEXT,
-    "to_wallet_id" TEXT,
+    "from_wallet_id" UUID,
+    "to_wallet_id" UUID,
     "amount_flat" BIGINT NOT NULL,
     "currency" TEXT NOT NULL,
     "idempotency_key" TEXT,
@@ -70,7 +70,7 @@ CREATE TABLE "transactions" (
 
 -- CreateTable
 CREATE TABLE "users" (
-    "id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
     "email" TEXT NOT NULL,
     "phone" TEXT,
     "first_name" TEXT,
@@ -95,8 +95,8 @@ CREATE TABLE "users" (
 
 -- CreateTable
 CREATE TABLE "wallets" (
-    "id" TEXT NOT NULL,
-    "user_id" TEXT NOT NULL,
+    "id" UUID NOT NULL,
+    "user_id" UUID NOT NULL,
     "currency" TEXT NOT NULL DEFAULT 'NGN',
     "balance_flat" BIGINT NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -12,11 +12,11 @@ enum TransactionStatus {
 }
 
 model Transaction {
-  id             String            @id @default(cuid())
+  id             String            @id @default(uuid()) @db.Uuid
   type           TransactionType
   status         TransactionStatus @default(PENDING)
-  fromWalletId   String?           @map("from_wallet_id")
-  toWalletId     String?           @map("to_wallet_id")
+  fromWalletId   String?           @map("from_wallet_id") @db.Uuid
+  toWalletId     String?           @map("to_wallet_id") @db.Uuid
   amountFlat     BigInt            @map("amount_flat")
   currency       String
   idempotencyKey String?           @unique @map("idempotency_key")
