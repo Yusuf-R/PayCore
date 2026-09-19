@@ -1,0 +1,20 @@
+enum VerificationCodeType {
+  EMAIL_VERIFY
+  PASSWORD_RESET
+  LOGIN_2FA
+}
+
+model VerificationCode {
+  id        String               @id @default(uuid()) @db.Uuid
+  userId    String               @map("user_id") @db.Uuid
+  type      VerificationCodeType
+  codeHash  String               @map("code_hash")
+  expiresAt DateTime             @map("expires_at")
+  usedAt    DateTime?            @map("used_at")
+  createdAt DateTime             @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type])
+  @@map("verification_codes")
+}
