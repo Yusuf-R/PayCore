@@ -24,6 +24,18 @@ export const verifyEmailSchema = z.object({
     code: z.string().regex(/^\d{6}$/, "Code must be exactly 6 digits"),
 });
 
+export const forgotPasswordSchema = z.object({
+    email: z.string().trim().toLowerCase().email(),
+});
+
+export const resetPasswordSchema = z.object({
+    email: z.string().trim().toLowerCase().email(),
+    code: z.string().regex(/^\d{6}$/, "Code must be exactly 6 digits"),
+    newPassword: passwordSchema,
+});
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
 export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
