@@ -32,22 +32,38 @@ export class AuthController {
         }
     };
 
-    forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const result = await authService.forgotPassword(req.body);
-            res.status(200).json(result);
+            const rawToken = req.cookies?.[REFRESH_COOKIE_NAME] as string | undefined;
+
+            const result = await authService.refresh(rawToken, {
+                userAgent: req.headers["user-agent"],
+                ipAddress: req.ip,
+            });
+
+            res
+                .status(200)
+                .cookie(
+                    REFRESH_COOKIE_NAME,
+                    result.refreshToken,
+                    refreshCookieOptions(REFRESH_TOKEN_TTL_MS),
+                )
+                .json({
+                    message: "Token refreshed",
+                    data: {
+                        accessToken: result.accessToken,
+                        user: result.user,
+                    },
+                });
         } catch (err) {
             next(err);
         }
     };
 
-    resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    resendVerification = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
-            const result = await authService.resetPassword(req.body);
-            res.status(200).json({
-                message: "Password reset successful. Please log in with your new password.",
-                data: result,
-            });
+            const result = await authService.resendVerification(req.body);
+            res.status(200).json(result);
         } catch (err) {
             next(err);
         }
@@ -79,34 +95,6 @@ export class AuthController {
         }
     };
 
-    refresh = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-        try {
-            const rawToken = req.cookies?.[REFRESH_COOKIE_NAME] as string | undefined;
-
-            const result = await authService.refresh(rawToken, {
-                userAgent: req.headers["user-agent"],
-                ipAddress: req.ip,
-            });
-
-            res
-                .status(200)
-                .cookie(
-                    REFRESH_COOKIE_NAME,
-                    result.refreshToken,
-                    refreshCookieOptions(REFRESH_TOKEN_TTL_MS),
-                )
-                .json({
-                    message: "Token refreshed",
-                    data: {
-                        accessToken: result.accessToken,
-                        user: result.user,
-                    },
-                });
-        } catch (err) {
-            next(err);
-        }
-    };
-
     logout = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const rawToken = req.cookies?.[REFRESH_COOKIE_NAME] as string | undefined;
@@ -116,6 +104,27 @@ export class AuthController {
                 .status(200)
                 .clearCookie(REFRESH_COOKIE_NAME, refreshCookieOptions(0))
                 .json({ message: "Logged out" });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    forgotPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const result = await authService.forgotPassword(req.body);
+            res.status(200).json(result);
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    resetPassword = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const result = await authService.resetPassword(req.body);
+            res.status(200).json({
+                message: "Password reset successful. Please log in with your new password.",
+                data: result,
+            });
         } catch (err) {
             next(err);
         }

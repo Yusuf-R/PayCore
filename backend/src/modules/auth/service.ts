@@ -18,7 +18,7 @@ import type {
     VerifyEmailInput,
     ForgotPasswordInput,
     ResetPasswordInput,
-    LoginInput,
+    LoginInput, ResendVerificationInput,
 } from "./schema.js";
 
 const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -354,6 +354,21 @@ export class AuthService {
         });
     }
 
+    async resendVerification(input: ResendVerificationInput) {
+        const user = await this.prismaClient.user.findUnique({
+            where: { email: input.email },
+            select: { id: true, email: true, emailVerifiedAt: true },
+        });
+
+        if (user && !user.emailVerifiedAt) {
+            await this.issueVerificationCode(user.id, user.email, "EMAIL_VERIFY");
+        }
+
+        return {
+            message: "If that account exists and is unverified, a new code has been sent.",
+        };
+    }
+
     private async issueVerificationCode(
         userId: string,
         email: string,
@@ -379,6 +394,8 @@ export class AuthService {
             logger.info(`📧 ${type} code (DEV ONLY)`, { email, code });
         }
     }
+
+
 }
 
 export const authService = new AuthService(prismaClient);

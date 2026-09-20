@@ -6,20 +6,23 @@ import {
     forgotPasswordSchema,
     resetPasswordSchema,
     loginSchema,
+    resendVerificationSchema,
 } from "./schema.js";
 import {authController} from "./controller.js";
 
 export const authRouter = Router();
 
-authRouter.post("/register", validate({body: registerSchema}), authController.register,);
+authRouter.post("/register", validate({body: registerSchema}), authController.register);
 
-authRouter.post("/verify-email", validate({body: verifyEmailSchema}), authController.verifyEmail,);
+authRouter.post("/verify-email", validate({body: verifyEmailSchema}), authController.verifyEmail);
 
-authRouter.post("/forgot-password", validate({body: forgotPasswordSchema}), authController.forgotPassword,);
+authRouter.post("/forgot-password", validate({body: forgotPasswordSchema}), authController.forgotPassword);
 
-authRouter.post("/reset-password", validate({body: resetPasswordSchema}), authController.resetPassword,);
+authRouter.post("/reset-password", validate({body: resetPasswordSchema}), authController.resetPassword);
 
-authRouter.post("/login", validate({ body: loginSchema }), authController.login);
+authRouter.post("/resend-verification", validate({body: resendVerificationSchema}), authController.resendVerification);
+
+authRouter.post("/login", validate({body: loginSchema}), authController.login);
 
 authRouter.post("/refresh", authController.refresh);
 
