@@ -67,3 +67,4 @@ skills-lock.json
 **/.windsurf/
 **/skills-lock.json
 /backend/src/generated/
+/cookies.txt

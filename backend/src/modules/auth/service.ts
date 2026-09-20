@@ -369,6 +369,30 @@ export class AuthService {
         };
     }
 
+    async getMe(userId: string) {
+        const user = await this.prismaClient.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                phone: true,
+                firstName: true,
+                lastName: true,
+                avatarUrl: true,
+                role: true,
+                status: true,
+                kycStatus: true,
+                emailVerifiedAt: true,
+                lastLoginAt: true,
+                createdAt: true,
+            },
+        });
+
+        if (!user) throw new AppError("User not found", 404);
+
+        return user;
+    }
+
     private async issueVerificationCode(
         userId: string,
         email: string,

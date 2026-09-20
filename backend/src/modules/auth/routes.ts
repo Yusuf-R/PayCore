@@ -27,3 +27,5 @@ authRouter.post("/login", validate({body: loginSchema}), authController.login);
 authRouter.post("/refresh", authController.refresh);
 
 authRouter.post("/logout", authController.logout);
+
+authRouter.get("/me", authController.me);

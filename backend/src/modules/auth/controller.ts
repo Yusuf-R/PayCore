@@ -5,6 +5,7 @@ import {
     REFRESH_TOKEN_TTL_MS,
     refreshCookieOptions,
 } from "../../lib/cookies.js";
+import {AppError} from "../../lib/appError.js";
 // import { AppError } from "../../lib/appError.js";
 
 export class AuthController {
@@ -125,6 +126,18 @@ export class AuthController {
                 message: "Password reset successful. Please log in with your new password.",
                 data: result,
             });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    me = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            if (!req.user) {
+                throw new AppError("Authentication required", 401);
+            }
+            const user = await authService.getMe(req.user.sub);
+            res.status(200).json({ data: user });
         } catch (err) {
             next(err);
         }
