@@ -1,3 +1,6 @@
+"use client"
+
+import * as React from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "cn"
@@ -39,19 +42,56 @@ const buttonVariants = cva(
   }
 )
 
-function Button({
-  className,
-  variant = "default",
-  size = "default",
-  ...props
-}: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+type ButtonProps = React.ComponentPropsWithoutRef<typeof ButtonPrimitive> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean
+  }
+
+const Button = React.forwardRef<HTMLElement, ButtonProps>(function Button(
+  { className, variant = "default", size = "default", asChild = false, children, ...props },
+  ref
+) {
+  const classes = cn(buttonVariants({ variant, size }), className)
+
+  if (asChild && React.isValidElement(children)) {
+    const childProps = children.props as Record<string, unknown> & {
+      className?: string
+      ref?: React.Ref<HTMLElement>
+    }
+    const childRef = childProps.ref
+
+    return React.cloneElement(children, {
+      ...props,
+      ...childProps,
+      className: cn(classes, childProps.className),
+      ref: (node: HTMLElement | null) => {
+        if (typeof childRef === "function") {
+          childRef(node)
+        } else if (childRef && typeof childRef === "object") {
+          ;(childRef as React.MutableRefObject<HTMLElement | null>).current = node
+        }
+
+        if (typeof ref === "function") {
+          ref(node)
+        } else if (ref) {
+          ;(ref as React.MutableRefObject<HTMLElement | null>).current = node
+        }
+      },
+    } as any)
+  }
+
   return (
     <ButtonPrimitive
+      ref={ref}
       data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={classes}
       {...props}
-    />
+    >
+      {children}
+    </ButtonPrimitive>
   )
-}
+})
+
+Button.displayName = "Button"
 
 export { Button, buttonVariants }
