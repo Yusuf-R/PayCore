@@ -13,6 +13,7 @@ const NAV = [
     { href: "/dashboard", label: "Overview", icon: OverviewIcon },
     { href: "/wallets", label: "Wallets", icon: WalletIcon },
     { href: "/transfers", label: "Transfers", icon: TransferIcon },
+    { href: "/notifications", label: "Notifications", icon: BellIcon },
     { href: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
@@ -105,7 +106,6 @@ export function UserSidebar() {
                         </div>
                     )}
                 </div>
-
                 <div className={cn("mt-2 flex items-center gap-1", isCollapsed ? "flex-col" : "justify-between px-1")}>
                     <button
                         type="button"
@@ -116,8 +116,7 @@ export function UserSidebar() {
                             isCollapsed && "w-9",
                         )}
                     >
-                        {/*{isCollapsed ? <SignOutIcon className="mx-auto h-4 w-4" /> : "Sign out"}*/}
-                        <SignOutIcon className="mx-auto h-4 w-4" />
+                        {isCollapsed ? <SignOutIcon className="mx-auto h-4 w-4" /> : "Sign out"}
                     </button>
                 </div>
             </div>
@@ -224,6 +223,15 @@ function SignOutIcon({ className }: { className?: string }) {
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
             <path d="m16 17 5-5-5-5" />
             <path d="M21 12H9" />
+        </svg>
+    );
+}
+
+function BellIcon ({ className }: { className?: string}) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
         </svg>
     );
 }
