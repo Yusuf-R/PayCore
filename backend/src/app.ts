@@ -4,7 +4,9 @@ import cors from "cors";
 import morgan from "morgan";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { authRouter } from "./modules/auth/routes.js";
+import { walletRouter } from "./modules/wallet/routes.js";
 import cookieParser from "cookie-parser";
+
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.get("/health", (_req, res) => {
 
 // Auth
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/wallets", walletRouter);
 
 // Error handler — MUST be last
 app.use(errorHandler);

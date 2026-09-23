@@ -32,6 +32,8 @@ model User {
   status    UserStatus @default(PENDING)
   kycStatus KycStatus  @default(UNVERIFIED) @map("kyc_status")
 
+  tier Int @default(1)
+
   emailVerifiedAt DateTime? @map("email_verified_at")
   phoneVerifiedAt DateTime? @map("phone_verified_at")
 
