@@ -116,7 +116,8 @@ export function UserSidebar() {
                             isCollapsed && "w-9",
                         )}
                     >
-                        {isCollapsed ? <SignOutIcon className="mx-auto h-4 w-4" /> : "Sign out"}
+                        {/*{isCollapsed ? <SignOutIcon className="mx-auto h-4 w-4" /> : "Sign out"}*/}
+                        <SignOutIcon className="mx-auto h-4 w-4" />
                     </button>
                 </div>
             </div>
