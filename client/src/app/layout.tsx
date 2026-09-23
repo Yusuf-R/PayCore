@@ -4,6 +4,7 @@ import {QueryProvider} from "@/providers/QueryProvider";
 import {Toaster} from "sonner";
 import "./globals.css";
 import {ThemeProvider} from "@/providers/ThemeProvider";
+import {AuthBootstrap} from "@/providers/AuthBootstrap";
 
 const sans = Poppins({subsets: ["latin"], variable: "--font-sans", weight: ["400", "500", "600", "700", "800"]});
 
@@ -33,8 +34,10 @@ export default function RootLayout({children}: LayoutProps<"/">) {
         <body className="font-sans min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
             <QueryProvider>
-                {children}
-                <Toaster position="top-right" duration={5000} richColors/>
+                <AuthBootstrap>
+                    {children}
+                    <Toaster position="top-right" duration={5000} richColors/>
+                </AuthBootstrap>
             </QueryProvider>
         </ThemeProvider>
         </body>

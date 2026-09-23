@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,22 +16,29 @@ import { useResendVerification } from "@/hooks/useResendVerification";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {useVerifyFlowStore} from "@/lib/auth/store/verifyFlowStore";
+import {useAuthStore} from "@/lib/auth/store/authStore";
+import {useRouter} from "next/navigation";
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 const RESEND_COOLDOWN_SECONDS = 45;
 
 function VerifyEmailForm() {
-    const searchParams = useSearchParams();
+    const router = useRouter();
     const verify = useVerifyEmail();
     const resend = useResendVerification();
 
-    const emailFromQuery = searchParams.get("email") ?? "";
+
+    // set email from store to be of type string
+    const emailFromStore = useVerifyFlowStore((s) => s.email) as string | null;
+    const [welcome, setWelcome] = useState(false);
+
     const [cooldown, setCooldown] = useState(0);
     const sentOnMountRef = useRef(false);
 
     const { control, handleSubmit, getValues, setError } = useForm<VerifyEmailFormValues>({
         resolver: zodResolver(verifyEmailSchema),
-        defaultValues: { email: emailFromQuery, code: "" },
+        defaultValues: { email: emailFromStore ?? "", code: "" },
     });
 
     // Countdown for the resend button
@@ -45,14 +51,21 @@ function VerifyEmailForm() {
     // If someone lands here without an email in the URL, nothing to do —
     // but we still let them type it manually.
     useEffect(() => {
-        if (!sentOnMountRef.current && emailFromQuery) {
+        if (!sentOnMountRef.current && emailFromStore) {
             sentOnMountRef.current = true;
             setCooldown(RESEND_COOLDOWN_SECONDS);
         }
-    }, [emailFromQuery]);
+    }, [emailFromStore]);
 
     function onSubmit(values: VerifyEmailFormValues) {
         verify.mutate(values, {
+            onSuccess: () => {
+                setWelcome(true);
+                const role = useAuthStore.getState().user?.role;
+                setTimeout(() => {
+                    router.push(role === "ADMIN" ? "/admin" : "/dashboard");
+                }, 1400);
+            },
             onError: (err) => {
                 const message =
                     err instanceof Error && err.message.toLowerCase().includes("expired")
@@ -85,6 +98,40 @@ function VerifyEmailForm() {
         );
     }
 
+    if (welcome) {
+        return (
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: EASE }}
+                className="flex flex-col items-center justify-center py-20 text-center"
+            >
+                <motion.div
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.1, ease: EASE }}
+                    className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/15"
+                >
+                    <svg
+                        width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" strokeWidth="2.5"
+                        strokeLinecap="round" strokeLinejoin="round"
+                        className="text-primary"
+                    >
+                        <path d="m5 12 5 5L20 7" />
+                    </svg>
+                </motion.div>
+
+                <h2 className="mt-6 text-2xl font-extrabold tracking-tight">
+                    You&apos;re in.
+                </h2>
+                <p className="mt-2 text-sm text-muted-foreground">
+                    Taking you to your dashboard…
+                </p>
+            </motion.div>
+        );
+    }
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -100,10 +147,10 @@ function VerifyEmailForm() {
                 </h1>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                     We sent a 6-digit code
-                    {emailFromQuery && (
+                    {emailFromStore && (
                         <>
                             {" "}to{" "}
-                            <span className="font-medium text-foreground">{emailFromQuery}</span>
+                            <span className="font-medium text-foreground">{emailFromStore}</span>
                         </>
                     )}
                     . It expires in 10 minutes.
@@ -187,6 +234,8 @@ function VerifyEmailForm() {
         </motion.div>
     );
 }
+
+
 
 export default function VerifyEmailPage() {
     return (

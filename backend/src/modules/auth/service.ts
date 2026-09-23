@@ -65,38 +65,26 @@ export class AuthService {
 
         const user = await this.prismaClient.user.findUnique({
             where: { email },
-            select: { id: true, emailVerifiedAt: true },
+            select: { id: true, email: true, role: true, firstName: true, lastName: true, emailVerifiedAt: true },
         });
 
-        if (!user) {
-            throw new AppError("Invalid or expired code", 400);
-        }
-
-        if (user.emailVerifiedAt) {
-            throw new AppError("Email already verified", 400);
-        }
+        if (!user) throw new AppError("Invalid or expired code", 400);
+        if (user.emailVerifiedAt) throw new AppError("Email already verified", 400);
 
         const codeRow = await this.prismaClient.verificationCode.findFirst({
-            where: {
-                userId: user.id,
-                type: "EMAIL_VERIFY",
-                usedAt: null,
-            },
+            where: { userId: user.id, type: "EMAIL_VERIFY", usedAt: null },
             orderBy: { createdAt: "desc" },
         });
 
-        if (!codeRow) {
-            throw new AppError("No active verification code. Please register again.", 400);
-        }
-
-        if (codeRow.expiresAt < new Date()) {
-            throw new AppError("Code expired. Please register again.", 400);
-        }
+        if (!codeRow) throw new AppError("No active verification code. Please request a new one.", 400);
+        if (codeRow.expiresAt < new Date()) throw new AppError("Code expired. Please request a new one.", 400);
 
         const valid = await verifyVerificationCode(code, codeRow.codeHash);
-        if (!valid) {
-            throw new AppError("Invalid or expired code", 400);
-        }
+        if (!valid) throw new AppError("Invalid or expired code", 400);
+
+        const accessToken = signAccessToken(user.id, user.role);
+        const refreshToken = generateRefreshToken();
+        const refreshTokenHash = hashRefreshToken(refreshToken);
 
         await this.prismaClient.$transaction([
             this.prismaClient.verificationCode.update({
@@ -105,14 +93,28 @@ export class AuthService {
             }),
             this.prismaClient.user.update({
                 where: { id: user.id },
+                data: { emailVerifiedAt: new Date(), status: "ACTIVE", lastLoginAt: new Date() },
+            }),
+            this.prismaClient.refreshToken.create({
                 data: {
-                    emailVerifiedAt: new Date(),
-                    status: "ACTIVE",
+                    userId: user.id,
+                    tokenHash: refreshTokenHash,
+                    expiresAt: new Date(Date.now() + REFRESH_TOKEN_TTL_MS),
                 },
             }),
         ]);
 
-        return { userId: user.id, email };
+        return {
+            accessToken,
+            refreshToken,
+            user: {
+                id: user.id,
+                email: user.email,
+                role: user.role,
+                firstName: user.firstName,
+                lastName: user.lastName,
+            },
+        };
     }
 
     async forgotPassword(input: ForgotPasswordInput) {

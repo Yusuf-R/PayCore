@@ -24,10 +24,20 @@ export class AuthController {
     verifyEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         try {
             const result = await authService.verifyEmail(req.body);
-            res.status(200).json({
-                message: "Email verified successfully.",
-                data: result,
-            });
+            res
+                .status(200)
+                .cookie(
+                    REFRESH_COOKIE_NAME,
+                    result.refreshToken,
+                    refreshCookieOptions(REFRESH_TOKEN_TTL_MS),
+                )
+                .json({
+                    message: "Email verified successfully.",
+                    data: {
+                        accessToken: result.accessToken,
+                        user: result.user,
+                    },
+                });
         } catch (err) {
             next(err);
         }

@@ -1,5 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { useAuthStore } from "@/lib/auth/authStore";
+import { useAuthStore } from "@/lib/auth/store/authStore";
 
 export const privateApi = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,

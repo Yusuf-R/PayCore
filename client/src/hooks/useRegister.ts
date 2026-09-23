@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { authService, type RegisterPayload } from "@/services/auth/AuthService";
+import {useVerifyFlowStore} from "@/lib/auth/store/verifyFlowStore";
 
 export function useRegister() {
     const router = useRouter();
@@ -10,7 +11,8 @@ export function useRegister() {
     return useMutation({
         mutationFn: (payload: RegisterPayload) => authService.register(payload),
         onSuccess: (_data, variables) => {
-            router.push(`/verify-email?email=${encodeURIComponent(variables.email)}`);
+            useVerifyFlowStore.getState().setEmail(variables.email);
+            router.push(`/verify-email`);
         },
     });
 }

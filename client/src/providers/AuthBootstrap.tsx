@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { privateApi } from "@/lib/api/private";
-import { useAuthStore } from "@/lib/auth/authStore";
+import { useAuthStore } from "@/lib/auth/store/authStore";
 
 export function AuthBootstrap({ children }: { children: React.ReactNode }) {
     const ran = useRef(false);

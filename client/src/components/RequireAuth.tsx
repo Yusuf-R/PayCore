@@ -1,18 +1,12 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuthStore, type AuthUser } from "@/lib/auth/authStore";
+import React, {useEffect} from "react";
+import {useRouter} from "next/navigation";
+import {useAuthStore, type AuthUser} from "@/lib/auth/store/authStore";
 
 type Role = AuthUser["role"];
 
-export function RequireAuth({
-                                role,
-                                children,
-                            }: {
-    role?: Role;
-    children: React.ReactNode;
-}) {
+export function RequireAuth({role, children}: { role?: Role; children: React.ReactNode; }) {
     const router = useRouter();
     const status = useAuthStore((s) => s.status);
     const user = useAuthStore((s) => s.user);
@@ -35,7 +29,7 @@ export function RequireAuth({
         return (
             <div className="flex min-h-screen items-center justify-center">
                 <div className="flex items-center gap-3 font-mono text-xs text-muted-foreground">
-                    <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+                    <span className="h-2 w-2 animate-pulse rounded-full bg-primary"/>
                     Loading session…
                 </div>
             </div>

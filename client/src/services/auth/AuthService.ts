@@ -1,6 +1,6 @@
 import { publicApi } from "@/lib/api/public";
 import { privateApi } from "@/lib/api/private";
-import type { AuthUser } from "@/lib/auth/authStore";
+import type { AuthUser } from "@/lib/auth/store/authStore";
 
 export interface LoginPayload {
     email: string;
@@ -42,8 +42,8 @@ class AuthService {
         return res.data.data;
     }
 
-    async verifyEmail(payload: VerifyEmailPayload): Promise<RegisterResult> {
-        const res = await publicApi.post<{ data: RegisterResult }>("/auth/verify-email", payload);
+    async verifyEmail(payload: VerifyEmailPayload): Promise<LoginResult> {
+        const res = await publicApi.post<{ data: LoginResult }>("/auth/verify-email", payload);
         return res.data.data;
     }
 
