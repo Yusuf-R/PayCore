@@ -10,8 +10,8 @@ import {
     verifyEmailSchema,
     type VerifyEmailFormValues,
 } from "@/schemas/AuthSchema";
-import { useVerifyEmail } from "@/hooks/useVerifyEmail";
-import { useResendVerification } from "@/hooks/useResendVerification";
+import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail";
+import { useResendVerification } from "@/hooks/auth/useResendVerification";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -11,7 +11,7 @@ import {
     resetPasswordSchema,
     type ResetPasswordFormValues,
 } from "@/schemas/AuthSchema";
-import { useResetPassword } from "@/hooks/useResetPassword";
+import { useResetPassword } from "@/hooks/auth/useResetPassword";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

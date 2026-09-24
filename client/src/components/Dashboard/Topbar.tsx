@@ -31,6 +31,7 @@ export function Topbar({ unreadCount = 0 }: { unreadCount?: number }) {
             >
                 <Menu className="h-5 w-5" />
             </button>
+            <div className="hidden lg:block" />
             <div className="flex items-center gap-3">
                 <button
                     onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

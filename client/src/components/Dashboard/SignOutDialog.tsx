@@ -1,7 +1,7 @@
 "use client";
 
 import {AnimatePresence, motion} from "motion/react";
-import {useLogout} from "@/hooks/useLogout";
+import {useLogout} from "@/hooks/auth/useLogout";
 import {Button} from "@/components/ui/button";
 
 const EASE = [0.22, 1, 0.36, 1] as const;

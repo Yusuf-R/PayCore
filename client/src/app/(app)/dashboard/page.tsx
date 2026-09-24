@@ -1,13 +1,22 @@
-"use client";
+'use client';
 
-import { useAuthStore } from "@/lib/auth/store/authStore";
+import { PageHeader } from "@/components/Dashboard/PageHeader";
+import { BalanceCard } from "@/components/Dashboard/BalanceCard";
+import { QuickActions } from "@/components/Dashboard/QuickActions";
+import { RecentTransactions } from "@/components/Dashboard/RecentTransactions";
 
 export default function DashboardPage() {
-    const user = useAuthStore((s) => s.user);
     return (
-        <div className="p-8">
-            <h1 className="text-3xl font-extrabold tracking-tight">Welcome back{user?.firstName ? `, ${user.firstName}` : ""}.</h1>
-            <p className="mt-2 text-sm text-muted-foreground">{user?.email}</p>
+        <div className="mx-auto max-w-6xl p-6 lg:p-8">
+            <PageHeader
+                title="Dashboard"
+                description="Your wallet, transfers, and recent activity."
+            />
+            <div className="mt-8 space-y-6">
+                <BalanceCard />
+                <QuickActions />
+                <RecentTransactions />
+            </div>
         </div>
     );
 }

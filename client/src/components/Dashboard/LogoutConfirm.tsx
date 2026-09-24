@@ -12,7 +12,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useLogout } from "@/hooks/useLogout";
+import { useLogout } from "@/hooks/auth/useLogout";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 
 export function LogoutConfirm({ asMenuItem }: { asMenuItem?: boolean }) {

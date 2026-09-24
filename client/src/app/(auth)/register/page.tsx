@@ -7,7 +7,7 @@ import { useState } from "react";
 import { motion } from "motion/react";
 import { toast } from "sonner";
 import { registerSchema, type RegisterFormValues } from "@/schemas/AuthSchema";
-import { useRegister } from "@/hooks/useRegister";
+import { useRegister } from "@/hooks/auth/useRegister";
 import { PasswordStrength } from "@/components/Marketing/PasswordStrength";
 
 import { Button } from "@/components/ui/button";

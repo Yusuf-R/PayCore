@@ -9,6 +9,7 @@ import {
     resendVerificationSchema,
 } from "./schema.js";
 import {authController} from "./controller.js";
+import {requireAuth} from "../../middleware/auth.js";
 
 export const authRouter = Router();
 
@@ -28,4 +29,4 @@ authRouter.post("/refresh", authController.refresh);
 
 authRouter.post("/logout", authController.logout);
 
-authRouter.get("/me", authController.me);
+authRouter.get("/me", requireAuth, authController.me);

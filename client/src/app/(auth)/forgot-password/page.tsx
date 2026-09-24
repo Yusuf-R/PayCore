@@ -9,7 +9,7 @@ import {
     forgotPasswordSchema,
     type ForgotPasswordFormValues,
 } from "@/schemas/AuthSchema";
-import { useForgotPassword } from "@/hooks/useForgotPassword";
+import { useForgotPassword } from "@/hooks/auth/useForgotPassword";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -7,7 +7,7 @@ import {useState} from "react";
 import {motion} from "motion/react";
 import {toast} from "sonner";
 import {loginSchema, type LoginFormValues} from "@/schemas/AuthSchema";
-import {useLogin} from "@/hooks/useLogin";
+import {useLogin} from "@/hooks/auth/useLogin";
 
 import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";

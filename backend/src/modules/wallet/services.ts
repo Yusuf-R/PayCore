@@ -2,14 +2,13 @@ import type { PrismaClient } from "../../generated/prisma/client.js";
 import { prismaClient } from "../../lib/prisma.js";
 import { logger } from "../../lib/logger.js";
 import type { FundWalletInput } from "./schema.js";
-import {getTierLimits} from "../../config/limit.js";
-import {AppError} from "../../lib/appError.js";
+import { getTierLimits } from "../../config/limit.js";
+import { AppError } from "../../lib/appError.js";
 
 export class WalletService {
     constructor(private readonly prismaClient: PrismaClient) {}
 
     async getMyWallet(userId: string) {
-        // Lazy-create on first access — handles users registered before wallets existed
         let wallet = await this.prismaClient.wallet.findUnique({
             where: { userId },
         });
@@ -50,28 +49,45 @@ export class WalletService {
             );
         }
 
-        const wallet = await this.prismaClient.wallet.upsert({
-            where: { userId },
-            create: {
-                userId,
-                currency: "NGN",
-                balanceFlat: amount,
-            },
-            update: {
-                balanceFlat: { increment: amount },
-            },
+        const result = await this.prismaClient.$transaction(async (tx) => {
+            const wallet = await tx.wallet.upsert({
+                where: { userId },
+                create: {
+                    userId,
+                    currency: "NGN",
+                    balanceFlat: amount,
+                },
+                update: {
+                    balanceFlat: { increment: amount },
+                },
+            });
+
+            const transaction = await tx.transaction.create({
+                data: {
+                    type: "FUNDING",
+                    status: "COMPLETED",
+                    toWalletId: wallet.id,
+                    amountFlat: amount,
+                    currency: wallet.currency,
+                    description: "Wallet funding (simulated deposit)",
+                    completedAt: new Date(),
+                },
+            });
+
+            return { wallet, transaction };
         });
 
         logger.info("Wallet funded", {
             userId,
-            walletId: wallet.id,
+            walletId: result.wallet.id,
+            transactionId: result.transaction.id,
             amountFlat: amount.toString(),
         });
 
         return {
-            id: wallet.id,
-            currency: wallet.currency,
-            balanceFlat: wallet.balanceFlat.toString(),
+            id: result.wallet.id,
+            currency: result.wallet.currency,
+            balanceFlat: result.wallet.balanceFlat.toString(),
         };
     }
 }
