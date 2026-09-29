@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { walletService } from "./services.js";
+import { walletService } from "./service.js";
 import { AppError } from "../../lib/appError.js";
 
 export class WalletController {
@@ -21,6 +21,19 @@ export class WalletController {
                 message: "Wallet funded",
                 data: wallet,
             });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    lookupAccount = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const { accountNumber } = req.params;
+            if (typeof accountNumber !== "string") {
+                throw new AppError("Account number is required", 400);
+            }
+            const result = await walletService.lookupAccount(accountNumber);
+            res.status(200).json({ data: result });
         } catch (err) {
             next(err);
         }

@@ -8,4 +8,9 @@ export const fundWalletSchema = z.object({
         .refine((v) => BigInt(v) < 10n ** 15n, "Amount is unrealistically large (typo guard)"),
 });
 
+export const accountNumberParamSchema = z.object({
+    accountNumber: z.string().regex(/^\d{10}$/, "Account number must be 10 digits"),
+});
+
 export type FundWalletInput = z.infer<typeof fundWalletSchema>;
+export type AccountNumberParam = z.infer<typeof accountNumberParamSchema>;

@@ -51,6 +51,7 @@ model User {
   wallet            Wallet?
   refreshTokens     RefreshToken[]
   verificationCodes VerificationCode[]
+  idempotencyKeys   IdempotencyKey[]
 
   @@map("users")
 }

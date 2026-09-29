@@ -6,6 +6,7 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { authRouter } from "./modules/auth/routes.js";
 import { walletRouter } from "./modules/wallet/routes.js";
 import cookieParser from "cookie-parser";
+import {transferRouter} from "./modules/transfer/routes.js";
 
 
 const app = express();
@@ -29,6 +30,7 @@ app.get("/health", (_req, res) => {
 // Auth
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/wallets", walletRouter);
+app.use("/api/v1/transfers", transferRouter);
 
 // Error handler — MUST be last
 app.use(errorHandler);
