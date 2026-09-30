@@ -12,6 +12,7 @@ export const createTransferSchema = z.object({
         .refine((v) => BigInt(v) < 10n ** 15n, "Amount is unrealistically large (typo guard)"),
 
     description: z.string().trim().max(200).optional(),
+    pin: z.string().regex(/^\d{4}$/, "PIN must be exactly 4 digits"),
 });
 
 export type CreateTransferInput = z.infer<typeof createTransferSchema>;

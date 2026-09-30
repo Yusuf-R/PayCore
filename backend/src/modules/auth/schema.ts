@@ -38,7 +38,22 @@ export const resendVerificationSchema = z.object({
     email: z.string().trim().toLowerCase().email(),
 });
 
+export const setPinSchema = z.object({
+    pin: z
+        .string()
+        .regex(/^\d{4}$/, "PIN must be exactly 4 digits")
+        .refine((v) => !/^(\d)\1{3}$/.test(v), "PIN cannot be four identical digits")
+        .refine((v) => v !== "1234" && v !== "4321", "PIN is too common"),
+});
 
+export const changePinSchema = z.object({
+    currentPin: z.string().regex(/^\d{4}$/, "PIN must be exactly 4 digits"),
+    newPin: z
+        .string()
+        .regex(/^\d{4}$/, "PIN must be exactly 4 digits")
+        .refine((v) => !/^(\d)\1{3}$/.test(v), "PIN cannot be four identical digits")
+        .refine((v) => v !== "1234" && v !== "4321", "PIN is too common"),
+});
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -46,3 +61,5 @@ export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
+export type SetPinInput = z.infer<typeof setPinSchema>;
+export type ChangePinInput = z.infer<typeof changePinSchema>;

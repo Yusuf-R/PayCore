@@ -6,7 +6,7 @@ import {
     forgotPasswordSchema,
     resetPasswordSchema,
     loginSchema,
-    resendVerificationSchema,
+    resendVerificationSchema, setPinSchema, changePinSchema,
 } from "./schema.js";
 import {authController} from "./controller.js";
 import {requireAuth} from "../../middleware/auth.js";
@@ -30,3 +30,7 @@ authRouter.post("/refresh", authController.refresh);
 authRouter.post("/logout", authController.logout);
 
 authRouter.get("/me", requireAuth, authController.me);
+
+authRouter.post("/pin", requireAuth, validate({body: setPinSchema}), authController.setPin);
+
+authRouter.patch("/pin", requireAuth, validate({body: changePinSchema}), authController.changePin);

@@ -152,6 +152,26 @@ export class AuthController {
             next(err);
         }
     };
+
+    setPin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            if (!req.user) throw new AppError("Authentication required", 401);
+            const result = await authService.setPin(req.user.sub, req.body);
+            res.status(200).json({ message: "PIN set successfully", data: result });
+        } catch (err) {
+            next(err);
+        }
+    };
+
+    changePin = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            if (!req.user) throw new AppError("Authentication required", 401);
+            const result = await authService.changePin(req.user.sub, req.body);
+            res.status(200).json({ message: "PIN changed successfully", data: result });
+        } catch (err) {
+            next(err);
+        }
+    };
 }
 
 export const authController = new AuthController();

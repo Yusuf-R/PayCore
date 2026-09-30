@@ -4,6 +4,7 @@ export interface Wallet {
     id: string;
     currency: string;
     balanceFlat: string;
+    accountNumber: string;
 }
 
 class WalletService {

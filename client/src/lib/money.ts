@@ -33,3 +33,10 @@ export function formatMoney(
 
     return `${symbol}${wholeFormatted}${decimal}`;
 }
+
+export function toFlatUnits(major: string, currency = "NGN"): string {
+    const exponent = CURRENCY_EXPONENTS[currency] ?? 2;
+    const [whole, fraction = ""] = major.split(".");
+    const padded = fraction.padEnd(exponent, "0").slice(0, exponent);
+    return `${whole}${padded}`.replace(/^0+(?=\d)/, "");
+}

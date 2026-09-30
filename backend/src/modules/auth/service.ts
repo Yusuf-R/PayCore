@@ -18,7 +18,7 @@ import type {
     VerifyEmailInput,
     ForgotPasswordInput,
     ResetPasswordInput,
-    LoginInput, ResendVerificationInput,
+    LoginInput, ResendVerificationInput, ChangePinInput, SetPinInput
 } from "./schema.js";
 
 const VERIFICATION_CODE_TTL_MS = 10 * 60 * 1000; // 10 minutes
@@ -387,12 +387,66 @@ export class AuthService {
                 emailVerifiedAt: true,
                 lastLoginAt: true,
                 createdAt: true,
+                tier: true,
+                pinSetAt: true,
             },
         });
 
         if (!user) throw new AppError("User not found", 404);
 
         return user;
+    }
+
+    async setPin(userId: string, input: SetPinInput) {
+        const user = await this.prismaClient.user.findUnique({
+            where: { id: userId },
+            select: { id: true, pinSetAt: true },
+        });
+
+        if (!user) throw new AppError("User not found", 404);
+
+        if (user.pinSetAt) {
+            throw new AppError("PIN already set. Use change-pin instead.", 400);
+        }
+
+        const pinHash = await bcrypt.hash(input.pin, config.BCRYPT_ROUNDS);
+
+        await this.prismaClient.user.update({
+            where: { id: userId },
+            data: { pinHash, pinSetAt: new Date() },
+        });
+
+        logger.info("PIN set", { userId });
+
+        return { pinSetAt: new Date().toISOString() };
+    }
+
+    async changePin(userId: string, input: ChangePinInput) {
+        const user = await this.prismaClient.user.findUnique({
+            where: { id: userId },
+            select: { id: true, pinHash: true, pinSetAt: true },
+        });
+
+        if (!user) throw new AppError("User not found", 404);
+        if (!user.pinHash || !user.pinSetAt) {
+            throw new AppError("No PIN set. Use set-pin first.", 400);
+        }
+
+        const valid = await bcrypt.compare(input.currentPin, user.pinHash);
+        if (!valid) {
+            throw new AppError("Current PIN is incorrect", 401);
+        }
+
+        const pinHash = await bcrypt.hash(input.newPin, config.BCRYPT_ROUNDS);
+
+        await this.prismaClient.user.update({
+            where: { id: userId },
+            data: { pinHash, pinSetAt: new Date() },
+        });
+
+        logger.info("PIN changed", { userId });
+
+        return { pinSetAt: new Date().toISOString() };
     }
 
     private async issueVerificationCode(

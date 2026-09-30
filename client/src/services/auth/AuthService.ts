@@ -77,6 +77,19 @@ class AuthService {
         );
         return res.data.data;
     }
+
+    async setPin(pin: string): Promise<{ pinSetAt: string }> {
+        const res = await privateApi.post<{ data: { pinSetAt: string } }>("/auth/pin", { pin });
+        return res.data.data;
+    }
+
+    async changePin(currentPin: string, newPin: string): Promise<{ pinSetAt: string }> {
+        const res = await privateApi.patch<{ data: { pinSetAt: string } }>("/auth/pin", {
+            currentPin,
+            newPin,
+        });
+        return res.data.data;
+    }
 }
 
 export const authService = new AuthService();

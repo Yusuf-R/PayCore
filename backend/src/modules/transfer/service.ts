@@ -4,6 +4,7 @@ import { logger } from "../../lib/logger.js";
 import { AppError } from "../../lib/appError.js";
 import { getTierLimits } from "../../config/limit.js";
 import type { CreateTransferInput } from "./schema.js";
+import bcrypt from "bcryptjs";
 
 export class TransferService {
     constructor(private readonly prismaClient: PrismaClient) {}
@@ -15,7 +16,24 @@ export class TransferService {
     ) {
         const amount = BigInt(input.amountFlat);
 
-        // ---------- 1. Load sender + receiver up front (outside the money transaction) ----------
+        // ---------- 1. Load sender user (single query) ----------
+        const senderUser = await this.prismaClient.user.findUnique({
+            where: { id: userId },
+            select: { tier: true, pinHash: true, pinSetAt: true },
+        });
+
+        if (!senderUser) throw new AppError("User not found", 404);
+
+        if (!senderUser.pinHash || !senderUser.pinSetAt) {
+            throw new AppError("Set a transaction PIN before sending money", 403);
+        }
+
+        const pinValid = await bcrypt.compare(input.pin, senderUser.pinHash);
+        if (!pinValid) {
+            throw new AppError("Invalid PIN", 401);
+        }
+
+        // ---------- 2. Load sender wallet ----------
         const senderWallet = await this.prismaClient.wallet.findUnique({
             where: { userId },
             select: { id: true, currency: true, balanceFlat: true },
@@ -25,6 +43,7 @@ export class TransferService {
             throw new AppError("Sender wallet not found", 404);
         }
 
+        // ---------- 3. Load receiver wallet ----------
         const receiverWallet = await this.prismaClient.wallet.findUnique({
             where: { accountNumber: input.recipientAccountNumber },
             select: { id: true, userId: true, currency: true },
@@ -42,15 +61,8 @@ export class TransferService {
             throw new AppError("Currency mismatch between wallets", 400);
         }
 
-        // ---------- 2. Tier limit ----------
-        const sender = await this.prismaClient.user.findUnique({
-            where: { id: userId },
-            select: { tier: true },
-        });
-
-        if (!sender) throw new AppError("User not found", 404);
-
-        const limits = getTierLimits(sender.tier);
+        // ---------- 4. Tier limit ----------
+        const limits = getTierLimits(senderUser.tier);
         if (amount > limits.singleTransactionFlat) {
             throw new AppError(
                 `Amount exceeds your ${limits.label} single-transaction limit`,
@@ -58,30 +70,26 @@ export class TransferService {
             );
         }
 
-        // ---------- 3. Atomic transfer ----------
+        // ---------- 5. Atomic transfer ----------
         try {
             const result = await this.prismaClient.$transaction(async (tx) => {
-                // 3a. Debit sender — conditional on sufficient balance.
-                //     If zero rows updated, the balance was insufficient.
                 const debited = await tx.$executeRaw`
-          UPDATE wallets
-          SET balance_flat = balance_flat - ${amount},
-              updated_at = NOW()
-          WHERE id = ${senderWallet.id}::uuid
-            AND balance_flat >= ${amount}
-        `;
+        UPDATE wallets
+        SET balance_flat = balance_flat - ${amount},
+            updated_at = NOW()
+        WHERE id = ${senderWallet.id}::uuid
+          AND balance_flat >= ${amount}
+      `;
 
                 if (debited === 0) {
                     throw new AppError("Insufficient funds", 400);
                 }
 
-                // 3b. Credit receiver
                 await tx.wallet.update({
                     where: { id: receiverWallet.id },
                     data: { balanceFlat: { increment: amount } },
                 });
 
-                // 3c. Record the transaction
                 const transaction = await tx.transaction.create({
                     data: {
                         type: "TRANSFER",
@@ -96,7 +104,6 @@ export class TransferService {
                     },
                 });
 
-                // 3d. Return the updated sender balance (fresh from DB)
                 const updatedSender = await tx.wallet.findUnique({
                     where: { id: senderWallet.id },
                     select: { balanceFlat: true },

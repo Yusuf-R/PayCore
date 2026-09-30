@@ -31,6 +31,7 @@ model User {
 
   status    UserStatus @default(PENDING)
   kycStatus KycStatus  @default(UNVERIFIED) @map("kyc_status")
+  pinSetAt  DateTime?  @map("pin_set_at")
 
   tier Int @default(1)
 

@@ -10,6 +10,9 @@ export interface AuthUser {
     status: string;
     kycStatus: string;
     emailVerifiedAt: string | null;
+    tier: number;
+    pinSetAt: string | null;
+    phone: string | null;
 }
 
 export type AuthStatus = "idle" | "bootstrapping" | "ready" | "unauthenticated";
